@@ -2,13 +2,6 @@
 
 Agnostic Component System is a flexible and framework-independent solution for building reusable UI components. This project aims to provide a set of tools and guidelines for creating components that can be integrated into various frontend frameworks with minimal effort.
 
-## Features
-
-- **Framework Agnostic:** Use components across different frontend frameworks.
-- **Reusable:** Build once, use close to everywhere.
-- **Customizable:** Easily extend and modify components to fit your needs.
-- **Well-documented:** Clear guidelines and examples.
-
 ## Packages
 
 - [`@agc-system/core`](packages/core) – Core logic, component manager, and type definitions.
@@ -21,7 +14,7 @@ Agnostic Component System is a flexible and framework-independent solution for b
 
 1. Clone the repository:
   ```bash
-  git clone https://github.com/your-username/agnostic-component-system.git
+  git clone https://github.com/medflex-gmbh/agnostic-component-system
   ```
 2. Install dependencies:
   ```bash
@@ -38,7 +31,7 @@ Agnostic Component System is a flexible and framework-independent solution for b
 
 Create a new file in your component catalog, for example `MyComponent.tsx` (or `.js`, `.ts`, etc.):
 
-```js
+```ts
 import {html, createComponent} from '@agc-system/core'
 
 interface ButtonProps {
@@ -78,12 +71,9 @@ function App() {
   return <Button text='Click Me!' handleClick={() => console.log("clicked")}/>;
 }
 ```
-
-
-
+---
 Vue Example:
-````vue
-
+```vue
 <script setup>
 import '@agc-plugins/vue'
 </script>
@@ -92,11 +82,35 @@ import '@agc-plugins/vue'
   <Button text='Click Me!' :handleClick={() => console.log("clicked")}/>
 </template>
 ```
+---
+Static HTML Example:
+```ts
+import express, { Request, Response } from 'express';
+import { html } from '@agc-system/core'
+import '@agc-system/static'
+import components from 'components';
 
-## Contributing
+const { Button } = components;
 
-Contributions are welcome! Please open issues or submit pull requests for improvements.
+const app = express();
+const port = process.env.PORT || 3000;
 
-## License
+app.get('/', async (req: Request, res: Response) => {
+  res.send(html`<${Button} text="Click Me!" />`)
+  // or
+  res.send(Button({ text: "Click Me!" }))
+});
+```
+---
+### 3. Use the system as Express View Engine
+Template Engine for Express:
+You can use your components as a templating engine in Express by registering a custom engine with app.engine('agc.ts', async (filePath, options, callback) => { ... }). This allows you to render components directly as server-side templates, enabling dynamic HTML generation with your agnostic components. 
 
-This project is licensed under the MIT License.
+```ts
+app.engine('agc.ts', async (filePath, options, callback) => { 
+  const component = await import(filePath)
+  callback(null, component.default(options))
+})
+
+```
+This setup lets you use your component files as Express views, combining the flexibility of your components with the power of server-side rendering.
